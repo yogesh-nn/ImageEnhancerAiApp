@@ -21,13 +21,13 @@ const Home = () => {
       console.error(error);
     }
   };
-
+  console.log(enhancedImage);
   return (
     <>
       <ImageUpload uploadedImageHandler={uploadedImageHandler} />
       <ImagePreview
         uploadedImage={uploadedImage}
-        enhancedImage={enhancedImage}
+        enhancedImage={enhancedImage.image}
         loading={loading}
       />
     </>

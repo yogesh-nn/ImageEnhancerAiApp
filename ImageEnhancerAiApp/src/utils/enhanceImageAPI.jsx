@@ -9,6 +9,7 @@ export const enhancedImageAPI = async (file) => {
 
     const enhancedImageData = await pollForEnhancedImage(taskId);
     console.log("Enhanced Image Data: ", enhancedImageData);
+    return enhancedImageData;
   } catch (error) {
     console.log(error.message);
   }
@@ -23,17 +24,18 @@ const uploadImage = async (file) => {
     `${BASE_URL}/api/tasks/visual/scale/`,
     formData,
     {
-      header: {
-        "Content-type": "multipart/form-data",
+      headers: {
+        "Content-Type": "multipart/form-data",
         "X-API-KEY": API_KEY,
       },
     }
   );
 
-  if (!data?.data?.taskId) {
+  if (!data?.data?.task_id) {
     throw new Error("Failed to upload image!");
   }
-  return data.data.taskId;
+  console.log(data.data.task_id);
+  return data.data.task_id;
 };
 
 const fetchEnhancedImage = async (taskId) => {
@@ -43,28 +45,29 @@ const fetchEnhancedImage = async (taskId) => {
   const { data } = await axios.get(
     `${BASE_URL}/api/tasks/visual/scale/${taskId}`,
     {
-      header: {
-        "Content-type": "multipart/form-data",
+      headers: {
         "X-API-KEY": API_KEY,
       },
     }
   );
-  if (data?.data?.image) {
-    return data.data.image;
+  if (data?.data) {
+    return data.data;
   } else {
     throw new Error("Failed to fetch the Enhanced Image!");
   }
 };
 
-const pollForEnhancedImage = async (taskId, retries = 0)=>{
-    const result = await fetchEnhancedImage(taskId);
+const pollForEnhancedImage = async (taskId, retries = 0) => {
+  const result = await fetchEnhancedImage(taskId);
 
-    if(result.state == 4){
-
-        if(retries >= 20){
-            throw new Error("Max tries reached, please try again later!");
-        }
-        await new Promise((resolve)=> setTimeout(resolve, 2000 ));
-        return pollForEnhancedImage(taskId, retries+1);
+  if (result.state == 4) {
+    console.log("processing...")
+    if (retries >= 20) {
+      throw new Error("Max tries reached, please try again later!");
     }
-}
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    return pollForEnhancedImage(taskId, retries + 1);
+  }
+  console.log(result);
+  return result;
+};
